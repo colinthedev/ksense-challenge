@@ -1,40 +1,28 @@
-const messageBox = document.querySelector("#users");
-const userPosts = document.querySelector('#posts')
+const userNamesTable = document.querySelector("table");
+const userPosts = document.querySelector('.userPostsContainer');
 
-const getNames = () => {
-fetch('https://jsonplaceholder.typicode.com/users')
-    .then(response => response.json())
-    .then((jsonResponse) => {
-        if (jsonResponse) {
-            messageBox.innerHTML = jsonResponse.map((user) => {
-                const userName = user.name
-                const id = user.id
-                let html = "<tr class='padding' id='line-" + id + "'>"
-                html += "<td>" + "<button class='userButton' onclick='getPost(" + id + ")'>" + userName + "</button>" + "</td>"
-                html += "</tr>"
-                return html;
-            });
-        }
-    }).catch(error => console.log(error));
+const getNames = async () => {
+    try {
+        let htmlContent = '';
+        const fetchData = await fetch('https://jsonplaceholder.typicode.com/users');
+        const usersJson = await fetchData.json();
+        usersJson.map( user => htmlContent += `<tr><td><button onclick="getPost(${user.id})">${user.username}</button></td></tr>` );
+        userNamesTable.innerHTML = htmlContent;
+    } catch (error) {
+        console.error(error);
+    }
 }
-getNames()
 
-const getPost = (id) => {
-fetch(`https://jsonplaceholder.typicode.com/posts?userId=${id}`)
-    .then(response => response.json())
-    .then(posts => {
-        if (posts) {
-            userPosts.innerHTML = posts.map((post) => {
-                const postTitle = post.title
-                const postBody = post.body
-                let html = "<div class='postWrapper'>"
-                html += "<h1>" + 'User:' + ' ' + id + "</h1>" 
-                html += "<h1>" + postTitle + "</h1>" 
-                html += "<h3>" + 'Body' + "</h3>" 
-                html += "<p>" + postBody + "</p>" 
-                html += "</div>"
-                return html;
-            })
-        }
-    }).catch(error => console.log(error));
+const getPost = async id => {
+    try {
+        let htmlContent = '';
+        const fetchData = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${id}`);
+        const postsData = await fetchData.json();
+        postsData.map( post => htmlContent += `<div class='postWrapper'><h1>User: ${id}</h1><h2>${post.title}</h2><h3>Body</h3><p>${post.body}</p></div>` );
+        userPosts.innerHTML = htmlContent;
+    } catch (error) {
+        console.error(error);
+    }
 }
+
+getNames();
